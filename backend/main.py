@@ -45,7 +45,7 @@ async def upload_resumes(
         processed["resumes"], processed["job_description"]
     )
     top_matches = [
-        {"filename": r.get("filename"), "score": r.get("score")}
+        {"filename": r.get("filename"), "similarity": r.get("score")}
         for r in ranked
     ]
 
