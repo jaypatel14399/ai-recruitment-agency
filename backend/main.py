@@ -4,6 +4,9 @@ import shutil
 from pathlib import Path
 from typing import List
 
+from utils.file_processing import process_uploaded_files
+from utils.ranking import rank_resumes_by_similarity
+
 app = FastAPI()
 
 # Allow React frontend to call FastAPI
@@ -37,8 +40,18 @@ async def upload_resumes(
     with open(jd_path, "wb") as buffer:
         shutil.copyfileobj(job_description.file, buffer)
 
+    processed = process_uploaded_files(resume_paths, jd_path)
+    ranked = rank_resumes_by_similarity(
+        processed["resumes"], processed["job_description"]
+    )
+    top_matches = [
+        {"filename": r.get("filename"), "score": r.get("score")}
+        for r in ranked
+    ]
+
     return {
         "message": "Files uploaded successfully",
         "resumes": resume_paths,
-        "job_description": str(jd_path)
+        "job_description": str(jd_path),
+        "top_matches": top_matches,
     }
