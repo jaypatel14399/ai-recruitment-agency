@@ -2,13 +2,18 @@ import { useState } from "react";
 import FileUpload from "./components/FileUpload";
 
 function App() {
-  const [resumes, setResumes] = useState([]);
-  const [jobDescription, setJobDescription] = useState(null);
+  const [resumes, setResumes] = useState<File[]>([]);
+  const [jobDescription, setJobDescription] = useState<File | null>(null);
+  const [topMatches, setTopMatches] = useState<
+    { filename: string; similarity: number }[]
+  >([]);
 
   const handleSubmit = async () => {
-  const formData = new FormData();
-  resumes.forEach((file) => formData.append("resumes", file));
-  formData.append("job_description", jobDescription);
+    const formData = new FormData();
+    resumes.forEach((file) => formData.append("resumes", file));
+    if (jobDescription) {
+      formData.append("job_description", jobDescription);
+    }
 
   try {
     const res = await fetch("http://localhost:8000/upload-resumes", {
@@ -22,7 +27,7 @@ function App() {
 
     const data = await res.json();
     console.log("Backend response:", data);
-    // You can now display the ranked resumes here in your UI
+    setTopMatches(data.top_matches || []);
   } catch (err) {
     console.error("Upload failed:", err);
   }
@@ -55,6 +60,32 @@ function App() {
       >
         Submit
       </button>
+
+      {topMatches.length > 0 && (
+        <div className="mt-8 w-full max-w-2xl">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            Top Matches
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded-xl shadow-md">
+              <thead>
+                <tr className="bg-gray-200 text-gray-700">
+                  <th className="px-4 py-2 text-left">Filename</th>
+                  <th className="px-4 py-2 text-left">Similarity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topMatches.map((match, idx) => (
+                  <tr key={idx} className="border-t">
+                    <td className="px-4 py-2">{match.filename}</td>
+                    <td className="px-4 py-2">{match.similarity.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
