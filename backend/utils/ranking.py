@@ -40,9 +40,9 @@ def rank_resumes_by_similarity(
     Returns
     -------
     list of dict
-        Each dictionary contains the original resume fields plus a ``score`` key
-        representing the cosine similarity to the job description. The list is
-        sorted in descending order of similarity.
+        Each dictionary contains the original resume fields plus a ``similarity``
+        key representing the cosine similarity to the job description. The list
+        is sorted in descending order of similarity.
     """
     if not job_description:
         return []
@@ -61,14 +61,14 @@ def rank_resumes_by_similarity(
     for resume in resumes:
         embedding = _get_embedding(client, resume.get("text"))
         if embedding is None:
-            score = 0.0
+            similarity = 0.0
         else:
             vector = embedding
             denom = jd_norm * math.sqrt(sum(x * x for x in vector))
-            score = float(
+            similarity = float(
                 sum(a * b for a, b in zip(jd_vector, vector)) / denom
             ) if denom else 0.0
-        ranked.append({**resume, "score": score})
+        ranked.append({**resume, "similarity": similarity})
 
-    ranked.sort(key=lambda x: x["score"], reverse=True)
+    ranked.sort(key=lambda x: x["similarity"], reverse=True)
     return ranked[:top_n]

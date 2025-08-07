@@ -34,7 +34,7 @@ def test_rank_resumes_by_similarity():
 
     assert len(ranked) == 2
     assert ranked[0]["filename"] == "A"
-    assert ranked[0]["score"] >= ranked[1]["score"]
+    assert ranked[0]["similarity"] >= ranked[1]["similarity"]
 
 
 def test_rank_resumes_by_similarity_empty_jd():
