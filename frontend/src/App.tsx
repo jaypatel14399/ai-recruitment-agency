@@ -49,7 +49,7 @@ function App() {
         <FileUpload
           label="Select Job Description"
           multiple={false}
-          onFileChange={(file) => setJobDescription(file[0])}
+          onFileChange={setJobDescription}
         />
       </div>
 
