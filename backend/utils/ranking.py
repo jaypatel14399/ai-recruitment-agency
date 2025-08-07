@@ -6,6 +6,14 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 
 import math
 
+from dotenv import load_dotenv
+
+import os
+
+load_dotenv()
+
+print("DEBUG: OPENAI_API_KEY =", os.environ.get("OPENAI_API_KEY"))
+
 if TYPE_CHECKING:  # pragma: no cover - for type hints only
     from openai import OpenAI
 
@@ -49,7 +57,9 @@ def rank_resumes_by_similarity(
 
     if client is None:
         from openai import OpenAI
-
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise RuntimeError("OPENAI_API_KEY environment variable is not set.")
         client = OpenAI()
     jd_embedding = _get_embedding(client, job_description)
     if jd_embedding is None:
